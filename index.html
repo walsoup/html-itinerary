@@ -85,9 +85,9 @@
    <div id="map"></div>
 
    <div class="button-container">
-       <input type="text" id="searchInput" placeholder="Search location..." />
-       <button id="searchButton" onclick="searchLocation()">🔎</button>
-       <button id="calculateShortestDistanceButton" onclick="calculateShortestDistance()">itinerary</button>
+       <input type="text" id="searchInput" placeholder="Search location..." aria-label="Search location query" />
+       <button id="searchButton" onclick="searchLocation()" aria-label="Search location">🔎</button>
+       <button id="calculateShortestDistanceButton" onclick="calculateShortestDistance()">Itinerary</button>
        <button id="resetCheckpointsButton" onclick="resetPage()">Reset</button>
    </div>
 
@@ -216,12 +216,18 @@
 
          function searchLocation() {
            var searchInput = document.getElementById('searchInput');
+           var searchButton = document.getElementById('searchButton');
            var query = searchInput.value;
 
            if (query === '') {
                alert('Please enter a location.');
                return;
            }
+
+           var originalText = searchButton.innerText;
+           searchButton.innerText = '⏳';
+           searchButton.setAttribute('aria-busy', 'true');
+           searchButton.disabled = true;
 
            var geocodingUrl = 'https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(query);
 
@@ -240,6 +246,14 @@
                    } else {
                        alert('Location not found. Please enter a valid location.');
                    }
+               })
+               .catch(function() {
+                   alert('Error searching for location.');
+               })
+               .finally(function() {
+                   searchButton.innerText = originalText;
+                   searchButton.removeAttribute('aria-busy');
+                   searchButton.disabled = false;
                });
        }
 
